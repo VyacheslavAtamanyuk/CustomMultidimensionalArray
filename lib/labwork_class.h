@@ -60,6 +60,14 @@ private:
 public:
     static SeventeenBits make_array(size_t size1, size_t size2, size_t size3);
 
+    SeventeenBits();
+
+    ~SeventeenBits();
+
+    SeventeenBits(const SeventeenBits& other);
+
+    SeventeenBits& operator=(const SeventeenBits& other);
+
     Arr& operator[](size_t ind);
 
     SeventeenBits operator+(const SeventeenBits& rhs);

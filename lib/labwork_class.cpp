@@ -29,6 +29,46 @@ Arr& SeventeenBits::operator[](size_t ind) {
     return array;
 }
 
+SeventeenBits::SeventeenBits() {};
+
+SeventeenBits::~SeventeenBits() {
+    delete[] arr;
+    delete[] one_bit;
+}
+
+SeventeenBits::SeventeenBits(const SeventeenBits& other) {
+    x = other.x;
+    y = other.y;
+    z = other.z;
+    for (size_t i = 0; i < other.x * other.y * other.z; ++i) {
+        arr[i] = other.arr[i];
+    }
+    for (size_t i = 0; i < (other.x * other.y * other.z) / 8 + 1; ++i) {
+        one_bit[i] = other.one_bit[i];
+    }
+}
+
+SeventeenBits& SeventeenBits::operator=(const SeventeenBits& other) {
+    if (this != &other) {
+        uint16_t* new_arr = new uint16_t[other.x * other.y * other.z];
+        uint8_t* new_one_bit = new uint8_t[(other.x * other.y * other.z) / 8 + 1];
+        for (size_t i = 0; i < other.x * other.y * other.z; ++i) {
+            new_arr[i] = other.arr[i];
+        }
+        for (size_t i = 0; i < (other.x * other.y * other.z) / 8 + 1; ++i) {
+            new_one_bit[i] = other.one_bit[i];
+        }
+        delete[] arr;
+        delete[] one_bit;
+        arr = new_arr;
+        one_bit = new_one_bit;
+        x = other.x;
+        y = other.y;
+        z = other.z;
+    }
+    return *this;
+}
+
 SeventeenBits SeventeenBits::make_array(size_t size1, size_t size2, size_t size3) {
     SeventeenBits new_class;
     new_class.arr = new uint16_t[size1 * size2 * size3];
@@ -215,5 +255,3 @@ bool operator==(const SubSubArr& object, size_t num) {
                       object.ind_of_sub_arr * object.parent_for_sub_sub_arr->z + object.ind_of_sub_sub_arr;
     return object.parent_for_sub_sub_arr->arr[location] + (((object.parent_for_sub_sub_arr->one_bit[location / 8] >> (location % 8)) & 1) << 16) == num;
 }
-
-
