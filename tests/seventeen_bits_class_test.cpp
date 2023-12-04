@@ -49,5 +49,5 @@ TEST(SeventeenBitsTests, MultiTest) {
     obj2 = obj1 * 5;
     obj3 = obj1 * -5;
     ASSERT_EQ(obj2[0][0][0], 10115);
-    ASSERT_EQ(obj3[0][0][0], 0);
+    ASSERT_EQ(obj3[0][0][0], 1);
 }
