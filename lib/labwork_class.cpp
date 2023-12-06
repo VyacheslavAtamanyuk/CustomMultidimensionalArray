@@ -1,5 +1,7 @@
 #include "labwork_class.h"
 
+#include <sstream>
+
 //Конструктор и методы Element (перегрузка ввода-вывода в Array3D
 
 Element::Element(size_t new_ind_of_sub_sub_arr, size_t new_ind_of_sub_arr, size_t new_ind_of_arr, Array3D* new_parent_for_sub_sub_arr):
@@ -46,7 +48,7 @@ Array3D::Array3D() {};
 
 Array3D::Array3D(size_t new_x, size_t new_y, size_t new_z): x(new_x), y(new_y), z(new_z) {
     uint16_t* new_arr = new uint16_t [new_x * new_y * new_z];
-    uint8_t* new_one_bit = new uint8_t[(new_x * new_y * new_z) / 8 + 1];
+    uint8_t* new_one_bit = new uint8_t[(new_x * new_y * new_z) / 8 + 1]{};
     arr = new_arr;
     one_bit = new_one_bit;
 }
@@ -57,31 +59,31 @@ Array3D::~Array3D() {
 }
 
 Array3D::Array3D(const Array3D& other) {
+    arr = new uint16_t[other.x * other.y * other.z];
+    one_bit = new uint8_t[(other.x * other.y * other.z) / 8 + 1];
+    for (int i = 0; i < other.x * other.y * other.z; ++i) {
+        arr[i] = other.arr[i];
+    }
+    for (int i = 0; i < (other.x * other.y * other.z) / 8 + 1; ++i) {
+        one_bit[i] = other.one_bit[i];
+    }
     x = other.x;
     y = other.y;
     z = other.z;
-    for (size_t i = 0; i < other.x * other.y * other.z; ++i) {
-        arr[i] = other.arr[i];
-    }
-    for (size_t i = 0; i < (other.x * other.y * other.z) / 8 + 1; ++i) {
-        one_bit[i] = other.one_bit[i];
-    }
 }
 
 Array3D& Array3D::operator=(const Array3D& other) {
     if (this != &other) {
-        uint16_t* new_arr = new uint16_t[other.x * other.y * other.z];
-        uint8_t* new_one_bit = new uint8_t[(other.x * other.y * other.z) / 8 + 1];
-        for (size_t i = 0; i < other.x * other.y * other.z; ++i) {
-            new_arr[i] = other.arr[i];
-        }
-        for (size_t i = 0; i < (other.x * other.y * other.z) / 8 + 1; ++i) {
-            new_one_bit[i] = other.one_bit[i];
-        }
         delete[] arr;
         delete[] one_bit;
-        arr = new_arr;
-        one_bit = new_one_bit;
+        arr = new uint16_t[other.x * other.y * other.z];
+        one_bit = new uint8_t[(other.x * other.y * other.z) / 8 + 1];
+        for (size_t i = 0; i < other.x * other.y * other.z; ++i) {
+            arr[i] = other.arr[i];
+        }
+        for (size_t i = 0; i < (other.x * other.y * other.z) / 8 + 1; ++i) {
+            one_bit[i] = other.one_bit[i];
+        }
         x = other.x;
         y = other.y;
         z = other.z;
@@ -99,8 +101,8 @@ Array3D Array3D::operator+(const Array3D& rhs) {
         for (int j = 0; j < y; ++j) {
             for (int k = 0; k < z; ++k) {
                 size_t location = i * y * z + j*z + k;
-                uint32_t left = ((((one_bit[location / 8] >> location%8) & 1) << 16) + arr[location]);
-                uint32_t right = ((((rhs.one_bit[location / 8] >> location%8) & 1) << 16) + rhs.arr[location]);
+                size_t left = ((((one_bit[location / 8] >> (location%8)) & 1) << 16) + arr[location]);
+                size_t right = ((((rhs.one_bit[location / 8] >> (location%8)) & 1) << 16) + rhs.arr[location]);
                 new_class.arr[location] = (left + right) & 0xFFFF;
                 new_class.one_bit[location / 8] |= (((left + right) >> 16) & 1) << (location % 8);
             }
@@ -115,8 +117,8 @@ Array3D Array3D::operator-(const Array3D& rhs) {
         for (int j = 0; j < y; ++j) {
             for (int k = 0; k < z; ++k) {
                 size_t location = i * y * z + j * z + k;
-                uint32_t left = ((((one_bit[location / 8] >> location%8) & 1) << 16) + arr[location]);
-                uint32_t right = ((((rhs.one_bit[location / 8] >> location%8) & 1) << 16) + rhs.arr[location]);
+                size_t left = ((((one_bit[location / 8] >> location%8) & 1) << 16) + arr[location]);
+                size_t right = ((((rhs.one_bit[location / 8] >> location%8) & 1) << 16) + rhs.arr[location]);
                 if (left > right) {
                     new_class.arr[location] = (left - right) & 0xFFFF;
                     new_class.one_bit[location / 8] |= (((left - right) >> 16) & 1) << (location % 8);
@@ -136,7 +138,7 @@ Array3D Array3D::operator*(int num) {
         for (int j = 0; j < y; ++j) {
             for (int k = 0; k < z; ++k) {
                 size_t location = i * y * z + j*z + k;
-                uint32_t old = ((((one_bit[location / 8] >> location%8) & 1) << 16) + arr[location]);
+                size_t old = ((((one_bit[location / 8] >> location%8) & 1) << 16) + arr[location]);
                 if (num > 0) {
                     new_class.arr[location] = (old * num) & 0xFFFF;
                     new_class.one_bit[location / 8] |= (((old * num) >> 16) & 1) << (location % 8);
@@ -150,17 +152,14 @@ Array3D Array3D::operator*(int num) {
 }
 
 std::istream& operator>>(std::istream& input, Array3D& data) {
-    size_t new_x, new_y, new_z;
-    input >> new_x >> new_y >> new_z;
-    Array3D new_data(new_x, new_y, new_z);
-    data = new_data;
-    for (int i = 0; i < new_x; ++i) {
-        for (int j = 0; j < new_y; ++j) {
-            for (int k = 0; k < new_z; ++k) {
+    input >> data.x >> data.y >> data.z;
+    for (int i = 0; i < data.x; ++i) {
+        for (int j = 0; j < data.y; ++j) {
+            for (int k = 0; k < data.z; ++k) {
                 uint32_t num;
                 input >> num;
-                data.arr[i * new_y * new_z + j * new_z + k] = num & 0xFFFF;
-                data.one_bit[(i * new_y * new_z + j * new_z + k) / 8] |= ((num >> 16) & 1) << ((i * new_y * new_z + j * new_z + k) % 8);
+                data.arr[i * data.y * data.z + j * data.z + k] = num & 0xFFFF;
+                data.one_bit[(i * data.y * data.z + j * data.z + k) / 8] |= ((num >> 16) & 1) << ((i * data.y * data.z + j * data.z + k) % 8);
             }
         }
     }
@@ -247,5 +246,5 @@ std::ostream& operator<<(std::ostream& output, const Array3D& data) {
 bool operator==(const Element& object, size_t num) {
     size_t location = object.ind_of_arr * object.parent_for_sub_sub_arr->y * object.parent_for_sub_sub_arr->z +
                       object.ind_of_sub_arr * object.parent_for_sub_sub_arr->z + object.ind_of_sub_sub_arr;
-    return object.parent_for_sub_sub_arr->arr[location] + (((object.parent_for_sub_sub_arr->one_bit[location / 8] >> (location % 8)) & 1) << 16) == num;
+    return ((object.parent_for_sub_sub_arr->arr[location] + (((object.parent_for_sub_sub_arr->one_bit[location / 8] >> (location % 8)) & 1) << 16)) == num);
 }

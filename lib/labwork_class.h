@@ -83,8 +83,9 @@ private:
     size_t x;
     size_t y;
     size_t z;
-    uint16_t* arr;
-    uint8_t* one_bit;
+    uint16_t* arr = nullptr;
+    uint8_t* one_bit = nullptr;
+    //Ставим везде nullptr, чтобы конструктор присваивания всегда работал корректно
 };
 
 #endif //LAB5_LABWORK_CLASS_H
